@@ -13,11 +13,11 @@ struct Options {
 fn main() {
     let options = Options::from_args();
     let message = options.message;
-    let eye = if options.dead { "x" } else { "o" }; // [1]
+    let eye = if options.dead { "x" } else { "o" }; 
     println!("{}", message);
     println!(" \\");
     println!(" \\");
     println!(" /\\_/\\");
-    println!(" ( {eye} {eye} )", eye = eye); // [2]
+    println!(" ( {eye} {eye} )", eye = eye);
     println!(" =( I )=");
 }
