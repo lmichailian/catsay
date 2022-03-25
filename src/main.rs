@@ -1,4 +1,6 @@
 extern crate structopt;
+use failure::ResultExt;
+use std::io::{self, Read};
 use std::{fs, path::PathBuf};
 
 use colored::*;
@@ -13,18 +15,28 @@ struct Options {
     dead: bool,
     #[structopt(short = "f", long = "file", parse(from_os_str))]
     catfile: Option<PathBuf>,
+    #[structopt(short = "i", long = "stdin")]
+    stdin: bool,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), failure::Error> {
     let options = Options::from_args();
-    let message = options.message;
+    let mut message = String::new();
     let eye = if options.dead { "x" } else { "o" };
+
+    if options.stdin {
+        io::stdin().read_to_string(&mut message)?;
+    } else {
+        message = options.message;
+    }
 
     println!("{}", message.white().underline().italic().on_black());
 
     match &options.catfile {
         Some(path) => {
-            let cat_template = fs::read_to_string(path)?;
+            let cat_template = fs::read_to_string(path)
+                .with_context(|_| format!("Could not read file {:?}", path))?;
+
             let cat_picture = cat_template.replace("{eye}", eye);
             println!("{}", &cat_picture)
         }
